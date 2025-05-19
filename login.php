@@ -1,3 +1,13 @@
+<?php
+session_start();
+// Khởi tạo CAPTCHA riêng cho đăng nhập và đăng ký nếu chưa có
+if (!isset($_SESSION['captcha_login'])) {
+    $_SESSION['captcha_login'] = rand(1000, 9999);
+}
+if (!isset($_SESSION['captcha_register'])) {
+    $_SESSION['captcha_register'] = rand(1000, 9999);
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,7 +30,6 @@
                 <h1>Login</h1>
                 <input type="hidden" name="action" value="login">
                 <?php
-                session_start();
                 if (isset($_SESSION['error'])) {
                     echo '<p style="color:red; text-align:center;">' . $_SESSION['error'] . '</p>';
                     unset($_SESSION['error']);
@@ -33,8 +42,8 @@
                     <input type="password" name="password" placeholder="Password" required>
                 </div>
                 <div class="input-box">
-                    <img id="captcha_img" src="captcha.php" alt="CAPTCHA">
-                    <button type="button" onclick="document.getElementById('captcha_img').src='captcha.php?'+Math.random()">Làm mới mã</button>
+                    <img id="captcha_img" src="captcha.php?type=login" alt="CAPTCHA">
+                    <button type="button" onclick="document.getElementById('captcha_img').src='captcha.php?type=login&refresh=1&'+Math.random()">Làm mới mã</button>
                 </div>
                 <div class="input-box">
                     <input type="text" name="captcha" placeholder="Nhập mã CAPTCHA" required>
@@ -58,8 +67,8 @@
                     <input type="password" name="password" placeholder="Password" required>
                 </div>
                 <div class="input-box">
-                    <img id="captcha_img2" src="captcha.php" alt="CAPTCHA">
-                    <button type="button" onclick="document.getElementById('captcha_img2').src='captcha.php?'+Math.random()">Làm mới mã</button>
+                    <img id="captcha_img2" src="captcha.php?type=register" alt="CAPTCHA">
+                    <button type="button" onclick="document.getElementById('captcha_img2').src='captcha.php?type=register&refresh=1&'+Math.random()">Làm mới mã</button>
                 </div>
                 <div class="input-box">
                     <input type="text" name="captcha" placeholder="Nhập mã CAPTCHA" required>

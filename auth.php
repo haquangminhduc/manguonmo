@@ -8,12 +8,18 @@ $password = $_POST['password'] ?? '';
 $email = trim($_POST['email'] ?? '');
 $captcha_input = $_POST['captcha'] ?? '';
 
-// Kiểm tra CAPTCHA (đã bị comment trong code của bạn, tôi giữ nguyên)
-// if (!isset($_SESSION['captcha']) || $captcha_input !== $_SESSION['captcha']) {
-//     $_SESSION['error'] = "Sai mã CAPTCHA.";
-//     header("Location: login.php");
-//     exit;
-// }
+// Xác định session key dựa trên hành động
+$session_key = $action === 'register' ? 'captcha_register' : 'captcha_login';
+
+// Kiểm tra CAPTCHA
+if (!isset($_SESSION[$session_key]) || $captcha_input !== (string)$_SESSION[$session_key]) {
+    $_SESSION['error'] = "Sai mã CAPTCHA.";
+    unset($_SESSION[$session_key]); // Xóa CAPTCHA để tạo mới khi tải lại
+    header("Location: login.php");
+    exit;
+}
+// Xóa CAPTCHA sau khi kiểm tra thành công
+unset($_SESSION[$session_key]);
 
 if ($action === 'login') {
     if (!$username || !$password) {
