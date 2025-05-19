@@ -1,0 +1,21 @@
+body {
+    padding-top: 70px;
+}
+
+.card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+
+.navbar {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.container {
+    max-width: 1200px;
+}
+
+.img-fluid {
+    max-height: 400px;
+    object-fit: cover;
+}
