@@ -51,10 +51,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_user'])) {
 // Xử lý reset mật khẩu
 if (isset($_GET['reset_password'])) {
     $user_id = (int)$_GET['reset_password'];
-    $new_password = 'default123'; // Có thể thay bằng logic sinh mật khẩu ngẫu nhiên
+    $new_password = '1'; // Có thể thay bằng logic sinh mật khẩu ngẫu nhiên
     $stmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ? AND role != 'admin'");
     $stmt->execute([$new_password, $user_id]);
-    $success = "Reset mật khẩu thành công! Mật khẩu mới: default123";
+    $success = "Reset mật khẩu thành công! Mật khẩu mới: 1";
 }
 
 // Xử lý thêm tin đăng
@@ -203,7 +203,7 @@ $total_posts = $conn->query("SELECT COUNT(*) FROM posts")->fetchColumn();
                             <button type="submit" name="update_user" class="btn btn-warning btn-sm">Sửa</button>
                             <a href="admin.php?reset_password=<?php echo $user['id']; ?>" class="btn btn-info btn-sm" onclick="return confirm('Bạn có chắc chắn reset mật khẩu?')">Reset mật khẩu</a>
                             </form>
-                        </td>
+                        </td>x
                     </tr>
                 <?php endforeach; ?>
             </tbody>
