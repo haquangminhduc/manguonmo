@@ -2,8 +2,8 @@
     <div class="map-container">
         <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1730.089542771556!2d105.69455767195709!3d18.65904594910403!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3139cddf0bf20f23%3A0x86154b56a284fa6d!2zVHLGsOG7nW5nIMSQ4bqhaSBo4buNYyBWaW5o!5e1!3m2!1svi!2s!4v1747650229056!5m2!1svi!2s"
-            width="100%"
-            height="350"
+            width="90%"
+            height="250"
             style="border:0;"
             allowfullscreen=""
             loading="lazy"
@@ -23,7 +23,7 @@
     .contact {
         background: #333;
         color: #fff;
-        padding: 20px;
+        padding: 15px;
         margin-top: 20px;
         width: 100%;
         margin-left: 0;
