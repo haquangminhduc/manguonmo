@@ -8,19 +8,6 @@ $password = $_POST['password'] ?? '';
 $email = trim($_POST['email'] ?? '');
 $captcha_input = $_POST['captcha'] ?? '';
 
-// Xác định session key dựa trên hành động
-$session_key = $action === 'register' ? 'captcha_register' : 'captcha_login';
-
-// Kiểm tra CAPTCHA
-if (!isset($_SESSION[$session_key]) || $captcha_input !== (string)$_SESSION[$session_key]) {
-    $_SESSION['error'] = "Sai mã CAPTCHA.";
-    unset($_SESSION[$session_key]); // Xóa CAPTCHA để tạo mới khi tải lại
-    header("Location: login.php");
-    exit;
-}
-// Xóa CAPTCHA sau khi kiểm tra thành công
-unset($_SESSION[$session_key]);
-
 if ($action === 'login') {
     if (!$username || !$password) {
         $_SESSION['error'] = "Vui lòng nhập đầy đủ thông tin.";
@@ -34,7 +21,8 @@ if ($action === 'login') {
 
     if ($user && $password === $user['password']) {
         $_SESSION['user'] = $user['username'];
-        $_SESSION['role'] = $user['role']; // Gán role từ bảng users
+        $_SESSION['role'] = $user['role'] ?? 'user';
+        $_SESSION['user_id'] = $user['id']; // Thêm user_id vào session
         header("Location: index.php");
         exit;
     } else {
@@ -59,7 +47,6 @@ if ($action === 'login') {
         exit;
     }
 
-    // Lưu mật khẩu không mã hóa như bạn yêu cầu
     $stmt = $conn->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, 'user')");
     $stmt->execute([$username, $email, $password]);
 

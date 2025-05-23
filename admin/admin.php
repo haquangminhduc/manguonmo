@@ -1,6 +1,6 @@
 <?php
 session_start();
-require '../db.php'; // Điều chỉnh đường dẫn để trỏ đến db.php ở thư mục gốc
+require '../db.php';
 
 // Kiểm tra trạng thái đăng nhập và quyền admin
 if (!isset($_SESSION['user']) || $_SESSION['role'] !== 'admin') {
@@ -51,23 +51,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_user'])) {
 // Xử lý reset mật khẩu
 if (isset($_GET['reset_password'])) {
     $user_id = (int)$_GET['reset_password'];
-    $new_password = '1'; // Có thể thay bằng logic sinh mật khẩu ngẫu nhiên
+    $new_password = 'default123';
     $stmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ? AND role != 'admin'");
     $stmt->execute([$new_password, $user_id]);
-    $success = "Reset mật khẩu thành công! Mật khẩu mới: 1";
-}
-
-// Xử lý thêm tin đăng
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_post'])) {
-    $title = $_POST['title'];
-    $price = (int)$_POST['price'];
-    $location = $_POST['location'];
-    $area = (int)$_POST['area'];
-    $user_id = $_SESSION['user_id']; // Giả sử có cột user_id trong posts
-
-    $stmt = $conn->prepare("INSERT INTO posts (title, price, location, area, user_id, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
-    $stmt->execute([$title, $price, $location, $area, $user_id]);
-    $success = "Thêm tin đăng thành công!";
+    $success = "Reset mật khẩu thành công! Mật khẩu mới: default123";
 }
 
 // Xử lý cập nhật trạng thái tin đăng
@@ -126,9 +113,9 @@ $total_posts = $conn->query("SELECT COUNT(*) FROM posts")->fetchColumn();
                             <?php if (session_status() === PHP_SESSION_ACTIVE && !empty($_SESSION['user'])): ?>
                                 <li><a class="dropdown-item" href="../account.php">Chỉnh sửa thông tin</a></li>
                                 <li><a class="dropdown-item" href="../manage_posts.php">Quản lý tin đăng</a></li>
-                              <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-    <li><a class="dropdown-item" href="admin/admin.php">Quản trị viên</a></li>
-<?php endif; ?>
+                                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                                    <li><a class="dropdown-item" href="admin.php">Quản trị viên</a></li>
+                                <?php endif; ?>
                                 <li><a class="dropdown-item" href="../logout.php">Đăng xuất</a></li>
                             <?php else: ?>
                                 <li><a class="dropdown-item" href="../login.php">Đăng nhập</a></li>
@@ -203,7 +190,7 @@ $total_posts = $conn->query("SELECT COUNT(*) FROM posts")->fetchColumn();
                             <button type="submit" name="update_user" class="btn btn-warning btn-sm">Sửa</button>
                             <a href="admin.php?reset_password=<?php echo $user['id']; ?>" class="btn btn-info btn-sm" onclick="return confirm('Bạn có chắc chắn reset mật khẩu?')">Reset mật khẩu</a>
                             </form>
-                        </td>x
+                        </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -211,25 +198,6 @@ $total_posts = $conn->query("SELECT COUNT(*) FROM posts")->fetchColumn();
 
         <!-- Quản lý tin đăng -->
         <h3 class="mt-5">Quản lý tin đăng</h3>
-        <h4>Thêm tin đăng</h4>
-        <form method="POST" class="mb-4">
-            <div class="row">
-                <div class="col-md-3">
-                    <input type="text" name="title" class="form-control mb-2" placeholder="Tiêu đề" required>
-                </div>
-                <div class="col-md-2">
-                    <input type="number" name="price" class="form-control mb-2" placeholder="Giá (VND)" required>
-                </div>
-                <div class="col-md-3">
-                    <input type="text" name="location" class="form-control mb-2" placeholder="Địa điểm" required>
-                </div>
-                <div class="col-md-2">
-                    <input type="number" name="area" class="form-control mb-2" placeholder="Diện tích (m²)" required>
-                </div>
-            </div>
-            <button type="submit" name="add_post" class="btn btn-primary">Thêm tin</button>
-        </form>
-
         <h4>Cập nhật trạng thái tin đăng</h4>
         <table class="table table-bordered">
             <thead>

@@ -19,3 +19,77 @@ body {
     max-height: 400px;
     object-fit: cover;
 }
+
+/* Đảm bảo các thẻ card có kích cỡ bằng nhau */
+.post-card {
+    min-height: 400px; /* Chiều cao tối thiểu cố định cho card */
+    height: 100%; /* Đảm bảo thẻ đầy đủ chiều cao trong hàng */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden; /* Ẩn nội dung dư thừa */
+}
+
+.post-card .card-img-top {
+    height: 220px !important; /* Ghi đè chiều cao hình ảnh */
+    object-fit: cover; /* Đảm bảo hình ảnh không bị méo */
+}
+
+.post-card .card-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1rem;
+}
+
+.post-card .card-content {
+    flex-grow: 1;
+    max-height: 120px; /* Giới hạn chiều cao nội dung văn bản */
+    overflow: hidden; /* Ẩn nội dung dư thừa */
+}
+
+.post-card .card-title {
+    font-size: 1.1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Giới hạn tiêu đề 2 dòng */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 0.5rem;
+}
+
+.post-card .card-text {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 1; /* Giới hạn mỗi dòng văn bản 1 dòng */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.post-card .btn {
+    margin-top: auto !important; /* Đẩy nút xuống dưới cùng */
+    align-self: flex-end !important; /* Căn nút sang bên phải */
+}
+
+/* Định dạng logo */
+.logo-img {
+    max-height: 40px; /* Điều chỉnh kích thước tối đa của logo */
+    width: auto;
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-brand .logo-img {
+    margin-right: 0.5rem; /* Khoảng cách giữa logo và chữ */
+}
+
+/* Đảm bảo navbar không bị lệch khi thêm logo */
+.navbar {
+    padding: 0.5rem 1rem;
+}

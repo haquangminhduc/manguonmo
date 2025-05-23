@@ -26,6 +26,38 @@ if (!$post) {
     header("Location: index.php");
     exit;
 }
+
+// Xử lý thêm bình luận
+$comment_success = '';
+$comment_errors = [];
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_comment'])) {
+    if (!isset($_SESSION['user_id'])) {
+        $comment_errors[] = "Bạn cần đăng nhập để bình luận.";
+    } else {
+        $user_id = $_SESSION['user_id'];
+        $content = trim($_POST['content']);
+
+        if (empty($content)) {
+            $comment_errors[] = "Nội dung bình luận không được để trống.";
+        } else {
+            $sql = "INSERT INTO comments (post_id, user_id, content, created_at) VALUES (?, ?, ?, NOW())";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("iis", $post_id, $user_id, $content);
+            if ($stmt->execute()) {
+                $comment_success = "Bình luận đã được thêm thành công!";
+            } else {
+                $comment_errors[] = "Có lỗi xảy ra khi thêm bình luận.";
+            }
+        }
+    }
+}
+
+// Lấy danh sách bình luận
+$sql = "SELECT c.*, u.username FROM comments c JOIN users u ON c.user_id = u.id WHERE c.post_id = ? ORDER BY c.created_at DESC";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $post_id);
+$stmt->execute();
+$comments = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -38,40 +70,40 @@ if (!$post) {
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Menu -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-    <div class="container">
-        <a class="navbar-brand" href="index.php">Thuê Phòng Trọ</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link active" href="index.php">Trang chủ</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="accountDropdown" role="button" data-bs-toggle="dropdown">
-                        Tài khoản
-                    </a>
-                    <ul class="dropdown-menu">
-                        <?php if (session_status() === PHP_SESSION_ACTIVE && !empty($_SESSION['user_id'])): ?>
-                            <li><a class="dropdown-item" href="account.php">Chỉnh sửa thông tin</a></li>
-                            <li><a class="dropdown-item" href="manage_posts.php">Quản lý tin đăng</a></li>
-                            <li><a class="dropdown-item" href="logout.php">Đăng xuất</a></li>
-                        <?php else: ?>
-                            <li><a class="dropdown-item" href="login.php">Đăng nhập</a></li>
-                            <li><a class="dropdown-item" href="login.php">Đăng ký</a></li>
-                        <?php endif; ?>
-                    </ul>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="report.php">Gửi báo cáo</a>
-                </li>
-            </ul>
+    <!-- Menu -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.php">Thuê Phòng Trọ</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.php">Trang chủ</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="accountDropdown" role="button" data-bs-toggle="dropdown">
+                            Tài khoản
+                        </a>
+                        <ul class="dropdown-menu">
+                            <?php if (session_status() === PHP_SESSION_ACTIVE && !empty($_SESSION['user_id'])): ?>
+                                <li><a class="dropdown-item" href="account.php">Chỉnh sửa thông tin</a></li>
+                                <li><a class="dropdown-item" href="manage_posts.php">Quản lý tin đăng</a></li>
+                                <li><a class="dropdown-item" href="logout.php">Đăng xuất</a></li>
+                            <?php else: ?>
+                                <li><a class="dropdown-item" href="login.php">Đăng nhập</a></li>
+                                <li><a class="dropdown-item" href="login.php">Đăng ký</a></li>
+                            <?php endif; ?>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="report.php">Gửi báo cáo</a>
+                    </li>
+                </ul>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
     <div class="container mt-5 pt-5">
         <h2><?php echo htmlspecialchars($post['title']); ?></h2>
@@ -84,6 +116,50 @@ if (!$post) {
         <p><strong>Người đăng:</strong> <?php echo htmlspecialchars($post['username']); ?></p>
         <p><strong>Lượt xem:</strong> <?php echo $post['views']; ?></p>
         <a href="index.php" class="btn btn-secondary">Quay lại</a>
+                                
+        <!-- Phần bình luận -->
+        <div class="mt-5">
+            <h4>Bình luận</h4>
+
+            <!-- Hiển thị thông báo -->
+            <?php if ($comment_success): ?>
+                <div class="alert alert-success"><?php echo $comment_success; ?></div>
+            <?php endif; ?>
+            <?php foreach ($comment_errors as $error): ?>
+                <div class="alert alert-danger"><?php echo $error; ?></div>
+            <?php endforeach; ?>
+
+            <!-- Form thêm bình luận -->
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <form method="POST" class="mb-4">
+                    <div class="mb-3">
+                        <textarea name="content" class="form-control" rows="3" placeholder="Nhập bình luận của bạn..." required></textarea>
+                    </div>
+                    <button type="submit" name="add_comment" class="btn btn-primary">Gửi bình luận</button>
+                </form>
+            <?php else: ?>
+                <p>Vui lòng <a href="login.php">đăng nhập</a> để bình luận.</p>
+            <?php endif; ?>
+
+            <!-- Danh sách bình luận -->
+            <?php if (count($comments) > 0): ?>
+                <?php foreach ($comments as $comment): ?>
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <p class="card-text"><?php echo nl2br(htmlspecialchars($comment['content'])); ?></p>
+                            <p class="card-subtitle text-muted">
+                                <small>
+                                    Đăng bởi <strong><?php echo htmlspecialchars($comment['username']); ?></strong>
+                                    vào lúc <?php echo date('d/m/Y H:i', strtotime($comment['created_at'])); ?>
+                                </small>
+                            </p>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p>Chưa có bình luận nào. Hãy là người đầu tiên bình luận!</p>
+            <?php endif; ?>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
